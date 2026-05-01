@@ -42,9 +42,32 @@ const AdsterraPopunder = () => (
   <Script src="https://walkingdrunkard.com/05/8f/16/058f16578c078bdca3e7872a27e39676.js" strategy="lazyOnload" />
 );
 
+const swipeThreshold = 50;
+
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+    scale: 1
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? 100 : -100,
+    opacity: 0,
+    scale: 0.95
+  })
+};
+
 export default function Home() {
   const [is18Plus, setIs18Plus] = useState<boolean | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [imagesPreloaded, setImagesPreloaded] = useState<Set<number>>(new Set());
 
   const getImageUrl = useCallback((index: number) => {
@@ -86,7 +109,13 @@ export default function Home() {
   }, []);
 
   const handleNext = () => {
+    setDirection(1);
     setCurrentIndex((prev) => prev + 1);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : adultImages.length - 1));
   };
 
   // Age Gate
@@ -148,23 +177,30 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Standard Ad Banner */}
-      <div className="shrink-0 z-20 relative w-full flex justify-center py-1">
-        <AdsterraBanner />
-      </div>
-
       {/* Image Gallery Area */}
       <div className="w-full relative z-10 px-2 flex flex-col justify-center mt-4">
         
         <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(220,38,38,0.15)] bg-zinc-950 border border-zinc-800/50">
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             <motion.div
               key={currentIndex}
-              initial={{ opacity: 0, x: 50, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -50, scale: 0.95 }}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="absolute inset-0 w-full h-full"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.8}
+              onDragEnd={(e, { offset }) => {
+                if (offset.x < -swipeThreshold) {
+                  handleNext();
+                } else if (offset.x > swipeThreshold) {
+                  handlePrev();
+                }
+              }}
+              className="absolute inset-0 w-full h-full touch-pan-y"
             >
               <Image
                 src={getImageUrl(currentIndex)}
@@ -187,6 +223,11 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Adsterra Native Banner (Bottom of Picture) */}
+      <div className="w-full px-4 mt-4 shrink-0 z-20 relative flex justify-center">
+        <AdsterraBanner />
+      </div>
+
       {/* Big Next Button at Bottom */}
       <div className="w-full p-4 relative z-20 mt-2">
         <button 
@@ -202,17 +243,6 @@ export default function Home() {
             <ChevronRight className="w-6 h-6 text-white" />
           </div>
         </button>
-      </div>
-
-      {/* Scrollable Ads Area */}
-      <div className="w-full flex flex-col gap-4 px-4 pb-10">
-        <div className="w-full min-h-[250px] bg-zinc-900 border border-zinc-800 flex items-center justify-center rounded-xl relative group shadow-[0_0_15px_rgba(220,38,38,0.1)]">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-900/20 via-purple-900/20 to-red-900/20 opacity-50" />
-          <span className="text-zinc-600 font-bold text-sm tracking-widest relative z-10 text-center">
-            AD SPACE<br/>
-            <span className="text-xs font-normal">ADD MORE AD SCRIPTS HERE</span>
-          </span>
-        </div>
       </div>
 
     </main>

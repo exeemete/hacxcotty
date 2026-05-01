@@ -1,20 +1,15 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# NoirView
+An 18+ fast loading photo gallery with a mature, dark theme.
 
-# Run and deploy your AI Studio app
+## Features
+- Mobile-optimized viewing experience
+- Fast image loading with preloading capabilities
+- Adsterra native integration for monetization
+- Gesture-based navigation (swipe left/right)
+- 18+ Age verification gate
 
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/890c5b61-658a-41ed-96b9-9df2b0fb4098
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Tech Stack
+- Next.js (App Router)
+- React
+- Tailwind CSS
+- Motion (Framer Motion)
